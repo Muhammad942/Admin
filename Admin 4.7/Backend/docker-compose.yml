@@ -1,0 +1,38 @@
+# version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: campus_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: campus_api_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - SUPABASE_URL=
+      - SUPABASE_SERVICE_KEY=
+      - FIRECRAWL_API_KEY=
+      - COLLEGE_NEWS_URL=https://www.cis.edu.eg/news
+      - CHOKIDAR_USEPOLLING=true
+      - DEEPSEEK_API_KEY=
+      - ALLOW_ANON=false
+    depends_on:
+      - redis
+    restart: unless-stopped
+    # IMPORTANT: run a dev command that hot-reloads (see next section)
+    command: npm run dev
+
+volumes:
+  redis_data:
